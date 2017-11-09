@@ -50,10 +50,14 @@ class CrustModel:
         self.rho = self.rho.reshape((180, 360, 9))
         self.bnds = self.bnds.reshape((180, 360, 9))
 
+        # Constains a list with all the layers names.
         self.layer_names = ["water", "ice", "upper_sediments",
                             "middle_sediments", "lower_sediments",
                             "upper_crust", "middle_crust", "lower_crust",
                             "mantle"]
+        
+        # Contains the list of the data that each layer has..
+        self.layer_data = ['vp','vs','rho','layer_thickness','bnd']
 
     def _get_index(self, lat, lon):
         """
@@ -88,7 +92,7 @@ class CrustModel:
 
         return int(ilat), int(ilon)
 
-    def get_point(self, lat, lon):
+    def get_point(self, lat, lon, include_no_thickness=False):
         """
         Returns a model for a given latitude and longitude. Note that the model
         is only defined on a 1 degree grid starting at 89.5 and -179.5.
@@ -100,12 +104,15 @@ class CrustModel:
 
         lat : flaot
         Longitude of interest
+        
+        include_no_thickness: bool
+        Whether to include layers without thickness or not. Default: False
 
         Returns
         -------
         model_layers : dict
-        Dictionary of layers with the keys as layer names and the values as
-        a list of vp, vs, density, layer thickness, and the top of the layer
+        Dictionary of layers with the keys as layer names and a dictionary with 
+        the values of vp, vs, density, layer thickness, and the top of the layer
         with respect to sea level.
         """
 
@@ -119,14 +126,28 @@ class CrustModel:
         model_layers = dict()
 
         for i, layer in enumerate(self.layer_names):
-            vp = self.vp[ilat, ilon][i]
-            vs = self.vs[ilat, ilon][i]
-            rho = self.rho[ilat, ilon][i]
-            bnd = self.bnds[ilat, ilon][i]
+            
+            # Read the layer thickness
             layer_thickness = thickness[i]
-
-            # If the layer has thickness or is the mantle, write it
-            if layer_thickness >= 0.01 or layer == "mantle":
-                model_layers[layer] = [vp, vs, rho, layer_thickness, bnd]
+            
+            # If no thickness (include_no_thickness=False), check if the layer has thickness (>= 0.01)
+            # or if it's the mantle, write it
+            if ((include_no_thickness == False) & (layer_thickness >= 0.01)) or layer == "mantle":
+                
+                # Read each parameter
+                vp = self.vp[ilat, ilon][i]
+                vs = self.vs[ilat, ilon][i]
+                rho = self.rho[ilat, ilon][i]
+                bnd = self.bnds[ilat, ilon][i]
+                
+                #####################################################################
+                # Make sure that KEYS defines here, are the same as self.layer_data #
+                #####################################################################
+                model_layers[layer] = {
+                        'vp': vp, # 
+                        'vs': vs,
+                        'rho': rho,
+                        'layer_thickness':layer_thickness,
+                        'bnd': bnd}
 
         return model_layers

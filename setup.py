@@ -6,7 +6,7 @@ setup(name='pycrust10',
       author='John Leeman, Juan Manuel Haedo',
       author_email='john@leemangeophysical.com, juanu@juanu.com.ar',
       url='https://github.com/jrleeman/Crust1.0/',
-      packages=['pycrust10'],
-      package_data={'pycrust10': ['data/*.*']},
+      packages=['pycrust10'], # Package name
+      package_data={'pycrust10': ['data/*.*']}, # Include data files
       include_package_data=True
      )
