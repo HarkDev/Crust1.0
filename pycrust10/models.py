@@ -1,8 +1,11 @@
 import numpy as np
 from math import floor
 
+import inspect
+import os
 
-class crustModel:
+
+class CrustModel:
     """
     Top level model object to retreive information from the LLNL Crust 1.0
     model.
@@ -25,12 +28,20 @@ class crustModel:
     Names of the nine possible layers in the model
     """
 
-    def __init__(self):
+    def __init__(self, data_path=os.path.dirname(inspect.stack()[0][1])  + '/data/'):
+        """
+        CrustModel constructor
+        
+        Parameters
+        ----------
+        * data_path: Path to where the data is located. default is ./data/. Use this if you want to load external data files.
+        """
+        
         # Read in data files
-        self.vp = np.loadtxt('crust1.vp')
-        self.vs = np.loadtxt('crust1.vs')
-        self.rho = np.loadtxt('crust1.rho')
-        self.bnds = np.loadtxt('crust1.bnds')
+        self.vp = np.loadtxt(data_path + 'crust1.vp')
+        self.vs = np.loadtxt(data_path + 'crust1.vs')
+        self.rho = np.loadtxt(data_path + 'crust1.rho')
+        self.bnds = np.loadtxt(data_path + 'crust1.bnds')
 
         # Reshape to a lon,lat,layer grid. The 0,0 index value
         # is at 90 south and 180 latitude.
